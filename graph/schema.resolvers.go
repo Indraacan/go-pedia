@@ -66,7 +66,17 @@ func (r *queryResolver) Products(ctx context.Context) ([]*model.Product, error) 
 }
 
 func (r *userResolver) Products(ctx context.Context, obj *model.User) ([]*model.Product, error) {
-	return nil, nil
+	var m []*model.Product
+
+	for _, products := range products {
+
+		if products.User == obj.ID {
+			m = append(m, products)
+		}
+
+	}
+
+	return m, nil
 }
 
 // Mutation returns generated.MutationResolver implementation.
