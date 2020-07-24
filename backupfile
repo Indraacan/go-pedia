@@ -17,17 +17,16 @@ var products = []*model.Product{
 		ID:          "1",
 		Name:        "Product",
 		Description: "product Description",
-		Price:       20000,
 		User:        "1",
 	},
 	{
 		ID:          "1",
 		Name:        "Product",
 		Description: "product Description",
-		Price:       2000,
 		User:        "2",
 	},
 }
+
 var users = []*model.User{
 	{
 		ID:       "1",
@@ -38,7 +37,7 @@ var users = []*model.User{
 		ID:       "2",
 		UserName: "indra kawasan siahaan",
 		Email:    "hallo indra",
-	},
+	}, 
 }
 
 func (r *mutationResolver) CreateProduct(ctx context.Context, input model.NewProduct) (*model.Product, error) {

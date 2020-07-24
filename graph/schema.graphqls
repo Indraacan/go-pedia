@@ -13,6 +13,7 @@ type Product{
   id: ID!
   name: String!
   description: String!
+  price: Int!
   user: User!
 }
 
@@ -23,6 +24,7 @@ type Query{
 input NewProduct{
   name: String!
   description: String!
+  price: Int!
 }
 
 type Mutation{
