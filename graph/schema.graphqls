@@ -4,7 +4,7 @@
 
 type User{
   id: ID!
-  userName: String!
+  user_name: String!
   email: String!
   products: [Product!]!
 }
@@ -22,6 +22,7 @@ type Query{
 }
 
 input NewProduct{
+  id: String!
   name: String!
   description: String!
   price: Int!

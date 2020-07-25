@@ -172,7 +172,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.Products(childComplexity), true
 
-	case "User.userName":
+	case "User.user_name":
 		if e.complexity.User.UserName == nil {
 			break
 		}
@@ -249,7 +249,7 @@ var sources = []*ast.Source{
 
 type User{
   id: ID!
-  userName: String!
+  user_name: String!
   email: String!
   products: [Product!]!
 }
@@ -267,6 +267,7 @@ type Query{
 }
 
 input NewProduct{
+  id: String!
   name: String!
   description: String!
   price: Int!
@@ -704,7 +705,7 @@ func (ec *executionContext) _User_id(ctx context.Context, field graphql.Collecte
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _User_userName(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+func (ec *executionContext) _User_user_name(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1867,6 +1868,12 @@ func (ec *executionContext) unmarshalInputNewProduct(ctx context.Context, obj in
 
 	for k, v := range asMap {
 		switch k {
+		case "id":
+			var err error
+			it.ID, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "name":
 			var err error
 			it.Name, err = ec.unmarshalNString2string(ctx, v)
@@ -2046,8 +2053,8 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
-		case "userName":
-			out.Values[i] = ec._User_userName(ctx, field, obj)
+		case "user_name":
+			out.Values[i] = ec._User_user_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}

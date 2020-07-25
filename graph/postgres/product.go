@@ -21,3 +21,10 @@ func (p *ProductRepo) GetProduct() ([]*model.Product, error) {
 
 	return products, nil
 }
+
+//CreateProduct Post i think
+func (p *ProductRepo) CreateProduct(product *model.Product) (*model.Product, error) {
+	_, err := p.DB.Model(product).Returning("*").Insert()
+
+	return product, err
+}
