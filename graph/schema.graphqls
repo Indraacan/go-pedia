@@ -17,9 +17,8 @@ type Product{
   users: User!
 }
 
-type Query{
-  products:[Product!]!
-  user(id:ID!):User!
+input FilterProduct{
+  name: String
 }
 
 input NewProduct{
@@ -34,6 +33,13 @@ input UpdateProduct{
   description: String
   price: Int
 }
+
+type Query{
+  products(filter: FilterProduct, limit: Int = 10 , offset: Int = 0):[Product!]!
+  user(id:ID!):User!
+}
+
+
 
 type Mutation{
   createProduct(input: NewProduct!) : Product!

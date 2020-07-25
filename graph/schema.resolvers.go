@@ -94,8 +94,8 @@ func (r *productResolver) Users(ctx context.Context, obj *model.Product) (*model
 	return getUserLoader(ctx).Load(obj.User)
 }
 
-func (r *queryResolver) Products(ctx context.Context) ([]*model.Product, error) {
-	return r.ProductRepo.GetProduct()
+func (r *queryResolver) Products(ctx context.Context, filter *model.FilterProduct, limit *int, offset *int) ([]*model.Product, error) {
+	return r.ProductRepo.GetProduct(filter, limit, offset)
 }
 
 func (r *queryResolver) User(ctx context.Context, id string) (*model.User, error) {
@@ -103,7 +103,7 @@ func (r *queryResolver) User(ctx context.Context, id string) (*model.User, error
 }
 
 func (r *userResolver) ProductID(ctx context.Context, obj *model.User) ([]*model.Product, error) {
-	return r.ProductRepo.GetProduct(obj)
+	return r.ProductRepo.GetUserProduct(obj)
 }
 
 // Mutation returns generated.MutationResolver implementation.

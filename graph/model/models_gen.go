@@ -2,6 +2,10 @@
 
 package model
 
+type FilterProduct struct {
+	Name *string `json:"name"`
+}
+
 type NewProduct struct {
 	ID          string `json:"id"`
 	Name        string `json:"name"`

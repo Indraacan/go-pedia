@@ -1,6 +1,8 @@
 package postgres
 
 import (
+	"fmt"
+
 	"github.com/go-pg/pg/v9"
 	"github.com/sony-nurdianto/go-pedia/graph/model"
 )
@@ -11,10 +13,27 @@ type ProductRepo struct {
 }
 
 //GetProduct all
-func (p *ProductRepo) GetProduct() ([]*model.Product, error) {
+func (p *ProductRepo) GetProduct(filter *model.FilterProduct, limit, offset *int) ([]*model.Product, error) {
 
 	var products []*model.Product
-	err := p.DB.Model(&products).Select()
+
+	query := p.DB.Model(&products)
+
+	if filter != nil {
+		if filter.Name != nil && *filter.Name != "" {
+			query.Where("name ILIKE ? ", fmt.Sprintf("%%%s%%", *filter.Name))
+		}
+	}
+
+	if limit != nil {
+		query.Limit(*limit)
+	}
+
+	if offset != nil {
+		query.Offset(*offset)
+	}
+
+	err := query.Select()
 	if err != nil {
 		return nil, err
 	}
@@ -53,8 +72,7 @@ func (p *ProductRepo) Delete(product *model.Product) error {
 }
 
 //GetUserProduct
-
-func (p *ProductRepo) GetUserProduct(user *model.User) ([]*model.product, error) {
+func (p *ProductRepo) GetUserProduct(user *model.User) ([]*model.Product, error) {
 	var products []*model.Product
 	err := p.DB.Model(&products).Where("user = ?", user.ID).Select()
 	return products, err
