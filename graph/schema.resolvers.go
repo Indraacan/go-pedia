@@ -45,9 +45,8 @@ func (r *mutationResolver) CreateProduct(ctx context.Context, input model.NewPro
 	panic(fmt.Errorf("not implemented"))
 }
 
-func (r *productResolver) User(ctx context.Context, obj *model.Product) (*model.User, error) {
+func (r *productResolver) Users(ctx context.Context, obj *model.Product) (*model.User, error) {
 	user := new(model.User)
-
 	for _, ui := range users {
 		if ui.ID == obj.User {
 			user = ui
@@ -103,3 +102,48 @@ type userResolver struct{ *Resolver }
 //  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
 //    it when you're done.
 //  - You have helper methods in this file. Move them out to keep these resolver files clean.
+// var products = []*model.Product{
+// 	{
+// 		ID:          "1",
+// 		Name:        "Product",
+// 		Description: "product Description",
+// 		Price:       20000,
+// 		// User:        "1",
+// 	},
+// 	{
+// 		ID:          "1",
+// 		Name:        "Product",
+// 		Description: "product Description",
+// 		Price:       2000,
+// 		// User:        "2",
+// 	},
+// }
+// var users = []*model.User{
+// 	{
+// 		ID:       "1",
+// 		UserName: "sony",
+// 		Email:    "sonynurdianto445@gmail.com",
+// 	},
+// 	{
+// 		ID:       "2",
+// 		UserName: "indra kawasan siahaan",
+// 		Email:    "hallo indra",
+// 	},
+// }
+
+// func (r *productResolver) User(ctx context.Context, obj *model.Product) (*model.User, error) {
+// 	user := new(model.User)
+
+// 	for _, ui := range users {
+// 		if ui.ID == obj.User {
+// 			user = ui
+// 			break
+// 		}
+// 	}
+
+// 	if user == nil {
+// 		return nil, errors.New("user is not exist")
+// 	}
+
+// 	return user, nil
+// }

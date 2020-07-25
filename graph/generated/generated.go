@@ -54,7 +54,7 @@ type ComplexityRoot struct {
 		ID          func(childComplexity int) int
 		Name        func(childComplexity int) int
 		Price       func(childComplexity int) int
-		User        func(childComplexity int) int
+		Users       func(childComplexity int) int
 	}
 
 	Query struct {
@@ -73,7 +73,7 @@ type MutationResolver interface {
 	CreateProduct(ctx context.Context, input model.NewProduct) (*model.Product, error)
 }
 type ProductResolver interface {
-	User(ctx context.Context, obj *model.Product) (*model.User, error)
+	Users(ctx context.Context, obj *model.Product) (*model.User, error)
 }
 type QueryResolver interface {
 	Products(ctx context.Context) ([]*model.Product, error)
@@ -137,12 +137,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Product.Price(childComplexity), true
 
-	case "Product.user":
-		if e.complexity.Product.User == nil {
+	case "Product.users":
+		if e.complexity.Product.Users == nil {
 			break
 		}
 
-		return e.complexity.Product.User(childComplexity), true
+		return e.complexity.Product.Users(childComplexity), true
 
 	case "Query.products":
 		if e.complexity.Query.Products == nil {
@@ -259,7 +259,7 @@ type Product{
   name: String!
   description: String!
   price: Int!
-  user: User!
+  users: User!
 }
 
 type Query{
@@ -533,7 +533,7 @@ func (ec *executionContext) _Product_price(ctx context.Context, field graphql.Co
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Product_user(ctx context.Context, field graphql.CollectedField, obj *model.Product) (ret graphql.Marshaler) {
+func (ec *executionContext) _Product_users(ctx context.Context, field graphql.CollectedField, obj *model.Product) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -550,7 +550,7 @@ func (ec *executionContext) _Product_user(ctx context.Context, field graphql.Col
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Product().User(rctx, obj)
+		return ec.resolvers.Product().Users(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1961,7 +1961,7 @@ func (ec *executionContext) _Product(ctx context.Context, sel ast.SelectionSet, 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
-		case "user":
+		case "users":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
 				defer func() {
@@ -1969,7 +1969,7 @@ func (ec *executionContext) _Product(ctx context.Context, sel ast.SelectionSet, 
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Product_user(ctx, field, obj)
+				res = ec._Product_users(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
