@@ -6,7 +6,7 @@ type User{
   id: ID!
   user_name: String!
   email: String!
-  products: [Product!]!
+  product_id: [Product!]!
 }
 
 type Product{
@@ -19,6 +19,7 @@ type Product{
 
 type Query{
   products:[Product!]!
+  user(id:ID!):User!
 }
 
 input NewProduct{
@@ -28,6 +29,14 @@ input NewProduct{
   price: Int!
 }
 
+input UpdateProduct{
+  name: String
+  description: String
+  price: Int
+}
+
 type Mutation{
   createProduct(input: NewProduct!) : Product!
+  updateProduct(id:ID!,input: UpdateProduct!) : Product!
+  deleteProduct(id:ID!) : Boolean!
 }

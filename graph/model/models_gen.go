@@ -8,3 +8,9 @@ type NewProduct struct {
 	Description string `json:"description"`
 	Price       int    `json:"price"`
 }
+
+type UpdateProduct struct {
+	Name        *string `json:"name"`
+	Description *string `json:"description"`
+	Price       *int    `json:"price"`
+}
