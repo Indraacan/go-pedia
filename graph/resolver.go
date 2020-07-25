@@ -1,6 +1,6 @@
 package graph
 
-import "github.com/sony-nurdianto/go-pedia/graph/model"
+import "github.com/sony-nurdianto/go-pedia/graph/postgres"
 
 // This file will not be regenerated automatically.
 //
@@ -8,5 +8,6 @@ import "github.com/sony-nurdianto/go-pedia/graph/model"
 
 //Resolver Exported
 type Resolver struct {
-	products []*model.Product
+	ProductRepo postgres.ProductRepo
+	UserRepo    postgres.UserRepo
 }

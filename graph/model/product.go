@@ -6,6 +6,6 @@ type Product struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	Price       int    `json:"price"`
-	// User        *User  `json:"user"`
-	User string `json:"userId"`
+	// User        *User  `json:"userid"`
+	User string `json:"users"`
 }

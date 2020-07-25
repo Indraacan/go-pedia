@@ -14,7 +14,7 @@ type Product{
   name: String!
   description: String!
   price: Int!
-  user: User!
+  users: User!
 }
 
 type Query{

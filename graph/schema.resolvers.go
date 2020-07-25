@@ -18,14 +18,14 @@ var products = []*model.Product{
 		Name:        "Product",
 		Description: "product Description",
 		Price:       20000,
-		User:        "1",
+		// User:        "1",
 	},
 	{
 		ID:          "1",
 		Name:        "Product",
 		Description: "product Description",
 		Price:       2000,
-		User:        "2",
+		// User:        "2",
 	},
 }
 var users = []*model.User{
@@ -63,7 +63,7 @@ func (r *productResolver) User(ctx context.Context, obj *model.Product) (*model.
 }
 
 func (r *queryResolver) Products(ctx context.Context) ([]*model.Product, error) {
-	return products, nil
+	return r.ProductRepo.GetProduct()
 }
 
 func (r *userResolver) Products(ctx context.Context, obj *model.User) ([]*model.Product, error) {
