@@ -31,7 +31,7 @@ type Product{
   name: String!
   description: String!
   price: Int!
-  users: User!
+  user: User!
 }
 
 input FilterProduct{
@@ -39,10 +39,10 @@ input FilterProduct{
 }
 
 input NewProduct{
-  id: String!
   name: String!
   description: String!
   price: Int!
+
 }
 
 input UpdateProduct{
@@ -60,15 +60,22 @@ input RegisterUser{
   last_name: String!
 }
 
+input LoginUser{
+    email: String!
+  password: String!
+}
+
 type Query{
   products(filter: FilterProduct, limit: Int = 10 , offset: Int = 0):[Product!]!
   user(id:ID!):User!
+
 }
 
 
 
 type Mutation{
   registerUser(input:RegisterUser!): AuthResponse!
+  loginUser(input:LoginUser!):AuthResponse!
   createProduct(input: NewProduct!) : Product!
   updateProduct(id:ID!,input: UpdateProduct!) : Product!
   deleteProduct(id:ID!) : Boolean!

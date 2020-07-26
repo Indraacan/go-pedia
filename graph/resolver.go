@@ -1,6 +1,6 @@
 package graph
 
-import "github.com/sony-nurdianto/go-pedia/graph/postgres"
+import "github.com/sony-nurdianto/go-pedia/graph/domain"
 
 // This file will not be regenerated automatically.
 //
@@ -8,6 +8,5 @@ import "github.com/sony-nurdianto/go-pedia/graph/postgres"
 
 //Resolver Exported
 type Resolver struct {
-	ProductRepo postgres.ProductRepo
-	UserRepo    postgres.UserRepo
+	Domain *domain.Domain
 }

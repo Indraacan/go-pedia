@@ -12,6 +12,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 	"github.com/sony-nurdianto/go-pedia/graph"
+	"github.com/sony-nurdianto/go-pedia/graph/domain"
 	"github.com/sony-nurdianto/go-pedia/graph/generated"
 	"github.com/sony-nurdianto/go-pedia/graph/middleware1"
 	"github.com/sony-nurdianto/go-pedia/graph/postgres"
@@ -50,16 +51,15 @@ func main() {
 	r.Use(middleware.Logger)
 	r.Use(middleware1.AuthMiddleware(userRepo))
 
-	c := generated.Config{Resolvers: &graph.Resolver{
-		ProductRepo: postgres.ProductRepo{DB: DB},
-		UserRepo:    userRepo,
-	}}
+	d := domain.NewDomain(userRepo, postgres.ProductRepo{DB: DB})
+
+	c := generated.Config{Resolvers: &graph.Resolver{Domain: d}}
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(c))
 
-	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	http.Handle("/query", graph.DataLoaderMiddlerware(DB, srv))
+	r.Handle("/", playground.Handler("GraphQL playground", "/query"))
+	r.Handle("/query", graph.DataLoaderMiddlerware(DB, srv))
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	log.Fatal(http.ListenAndServe(":"+port, r))
 }

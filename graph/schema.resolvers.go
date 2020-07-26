@@ -7,160 +7,61 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/sony-nurdianto/go-pedia/graph/generated"
 	"github.com/sony-nurdianto/go-pedia/graph/model"
 )
 
-func (r *mutationResolver) RegisterUser(ctx context.Context, input model.RegisterUser) (*model.AuthResponse, error) {
-	_, err := r.UserRepo.GetUserByEmail(input.Email)
-	if err == nil {
-		return nil, errors.New("email is alredy exist")
+//RegisterUser func
+func (r *Resolver) RegisterUser(ctx context.Context, input model.RegisterUser) (*model.AuthResponse, error) {
+	isValid := validation(ctx, input)
+	if !isValid {
+		return nil, errors.New("input errors")
 	}
 
-	_, err = r.UserRepo.GetUserByName(input.UserName)
-	if err == nil {
-		return nil, errors.New("user name is already used")
-	}
-
-	user := &model.User{
-		UserName:  input.UserName,
-		Email:     input.Email,
-		FirstName: input.FirstName,
-		LastName:  input.LastName,
-	}
-
-	err = user.HashPassword(input.Password)
-	if err != nil {
-		log.Printf("error while hasing password : %v", err)
-		return nil, errors.New("something went wrong")
-	}
-
-	//create verification code
-
-	tx, err := r.UserRepo.DB.Begin()
-	if err != nil {
-		log.Printf("erro when creating transaction : %v", err)
-		return nil, errors.New("something while wrong ")
-	}
-
-	defer tx.Rollback()
-
-	if _, err := r.UserRepo.CreateUser(tx, user); err != nil {
-		log.Printf("erro when creating user : %v", err)
-		return nil, errors.New("something wrong")
-	}
-
-	if err := tx.Commit(); err != nil {
-		log.Printf("erro when commiting %v", err)
-		return nil, err
-	}
-
-	token, err := user.GenerateToken()
-	if err != nil {
-		log.Printf("erroe when generating token : %v", err)
-		return nil, errors.New("something when wrong")
-	}
-
-	return &model.AuthResponse{
-		AuthToken: token,
-		User:      user,
-	}, nil
+	return r.Domain.RegisterUser(ctx, input)
 }
 
+//LoginUser user
+func (r *Resolver) LoginUser(ctx context.Context, input model.LoginUser) (*model.AuthResponse, error) {
+	isValid := validation(ctx, input)
+	if !isValid {
+		return nil, errors.New("input errors")
+	}
+
+	return r.Domain.LoginUser(ctx, input)
+}
+
+//CreateProduct
 func (r *mutationResolver) CreateProduct(ctx context.Context, input model.NewProduct) (*model.Product, error) {
-	if len(input.Name) < 3 {
-		return nil, errors.New("name is to short")
-	}
-
-	if len(input.Description) < 3 {
-		return nil, errors.New("description is to short")
-	}
-
-	product := &model.Product{
-		Name:        input.Name,
-		Description: input.Description,
-		Price:       input.Price,
-	}
-
-	return r.ProductRepo.CreateProduct(product)
+	return r.Domain.CreateProduct(ctx, input)
 }
 
+//UpdateProduct
 func (r *mutationResolver) UpdateProduct(ctx context.Context, id string, input model.UpdateProduct) (*model.Product, error) {
-	product, err := r.ProductRepo.GetByID(id)
-	if err != nil || product == nil {
-		return nil, errors.New("product not exist")
-	}
-
-	didUpdate := false
-
-	if input.Name != nil {
-		if len(*input.Name) < 3 {
-			return nil, errors.New("name to short")
-		}
-		product.Name = *input.Name
-
-		didUpdate = true
-	}
-	if input.Description != nil {
-		if len(*input.Description) < 3 {
-			return nil, errors.New("Description to short")
-		}
-		product.Description = *input.Description
-		didUpdate = true
-	}
-
-	if input.Price != nil {
-		if *input.Price <= 0 {
-			return nil, errors.New("price canot Zerro")
-		}
-
-		product.Price = *input.Price
-		didUpdate = true
-	}
-
-	if !didUpdate {
-		return nil, errors.New("no update done")
-	}
-
-	product, err = r.ProductRepo.Update(product)
-	if err != nil {
-		return nil, fmt.Errorf("error while updateing %v", err)
-	}
-
-	return product, nil
+	return r.Domain.UpdateProduct(ctx, id, input)
 }
 
+//DeleteProduct
 func (r *mutationResolver) DeleteProduct(ctx context.Context, id string) (bool, error) {
-	product, err := r.ProductRepo.GetByID(id)
-	if err != nil || product == nil {
-		return false, errors.New("product not exist")
-	}
-
-	err = r.ProductRepo.Delete(product)
-	if err != nil {
-		return false, fmt.Errorf("error while deleteing : %v", err)
-	}
-
-	return true, nil
+	return r.Domain.DeleteProduct(ctx, id)
 }
 
-func (r *productResolver) Users(ctx context.Context, obj *model.Product) (*model.User, error) {
-	return getUserLoader(ctx).Load(obj.User)
+func (r *productResolver) User(ctx context.Context, obj *model.Product) (*model.User, error) {
+	panic(fmt.Errorf("not implemented"))
 }
 
 func (r *queryResolver) Products(ctx context.Context, filter *model.FilterProduct, limit *int, offset *int) ([]*model.Product, error) {
-	return r.ProductRepo.GetProduct(filter, limit, offset)
+	return r.Domain.ProductRepo.GetProduct(filter, limit, offset)
 }
 
 func (r *queryResolver) User(ctx context.Context, id string) (*model.User, error) {
-	return r.UserRepo.GetUserByID(id)
+	return r.Domain.UserRepo.GetUserByID(id)
 }
 
 func (r *userResolver) ProductID(ctx context.Context, obj *model.User) ([]*model.Product, error) {
-	return r.ProductRepo.GetUserProduct(obj)
+	return r.Domain.ProductRepo.GetUserProduct(obj)
 }
 
 func (r *userResolver) UpdataeAt(ctx context.Context, obj *model.User) (*time.Time, error) {
@@ -183,3 +84,13 @@ type mutationResolver struct{ *Resolver }
 type productResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
 type userResolver struct{ *Resolver }
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//    it when you're done.
+//  - You have helper methods in this file. Move them out to keep these resolver files clean.
+func (r *productResolver) Users(ctx context.Context, obj *model.Product) (*model.User, error) {
+	return getUserLoader(ctx).Load(obj.User)
+}

@@ -58,3 +58,10 @@ func (u *User) GenerateToken() (*AuthToken, error) {
 	}, nil
 
 }
+
+//ComparePassword so you can loggin with your password whic mean decaode bcrypte
+func (u *User) ComparePassword(password string) error {
+	bytePassword := []byte(password)
+	byteHasedPassword := []byte(u.Password)
+	return bcrypt.CompareHashAndPassword(byteHasedPassword, bytePassword)
+}
