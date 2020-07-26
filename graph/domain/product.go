@@ -34,11 +34,20 @@ func (d *Domain) CreateProduct(ctx context.Context, input model.NewProduct) (*mo
 	return d.ProductRepo.CreateProduct(product)
 }
 
-//Update Product this is controler Product Update
+//UpdateProduct this is controler Product Update
 func (d *Domain) UpdateProduct(ctx context.Context, id string, input model.UpdateProduct) (*model.Product, error) {
+	currentUser, err := middleware1.GetCurrentUserFromCTX(ctx)
+	if err != nil {
+		return nil, errors.New("unautenticated")
+	}
+
 	product, err := d.ProductRepo.GetByID(id)
 	if err != nil || product == nil {
 		return nil, errors.New("product not exist")
+	}
+
+	if !product.IsOWner(currentUser) {
+		return nil, errors.New("you are not user")
 	}
 
 	didUpdate := false
@@ -92,7 +101,13 @@ func (d *Domain) DeleteProduct(ctx context.Context, id string) (bool, error) {
 		return false, errors.New("product not exist")
 	}
 
-	checkOwnerShip(product, currentUser)
+	if !Product.IsOwner(currentUser) {
+		return false, error.New("you're not owner")
+	}
+
+	if !checkOwnerShip(product, currentUser) {
+		return false, error.New("you're not owner")
+	}
 
 	err = d.ProductRepo.Delete(product)
 	if err != nil {
