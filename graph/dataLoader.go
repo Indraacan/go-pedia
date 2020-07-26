@@ -12,7 +12,7 @@ import (
 
 const userLoaderKey = "userloader"
 
-//DataLoader Handler
+//DataLoaderMiddlerware Handler
 func DataLoaderMiddlerware(db *pg.DB, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		userloader := UserLoader{

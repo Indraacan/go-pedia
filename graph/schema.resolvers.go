@@ -7,10 +7,68 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
+	"time"
 
 	"github.com/sony-nurdianto/go-pedia/graph/generated"
 	"github.com/sony-nurdianto/go-pedia/graph/model"
 )
+
+func (r *mutationResolver) RegisterUser(ctx context.Context, input model.RegisterUser) (*model.AuthResponse, error) {
+	_, err := r.UserRepo.GetUserByEmail(input.Email)
+	if err == nil {
+		return nil, errors.New("email is alredy exist")
+	}
+
+	_, err = r.UserRepo.GetUserByName(input.UserName)
+	if err == nil {
+		return nil, errors.New("user name is already used")
+	}
+
+	user := &model.User{
+		UserName:  input.UserName,
+		Email:     input.Email,
+		FirstName: input.FirstName,
+		LastName:  input.LastName,
+	}
+
+	err = user.HashPassword(input.Password)
+	if err != nil {
+		log.Printf("error while hasing password : %v", err)
+		return nil, errors.New("something went wrong")
+	}
+
+	//create verification code
+
+	tx, err := r.UserRepo.DB.Begin()
+	if err != nil {
+		log.Printf("erro when creating transaction : %v", err)
+		return nil, errors.New("something while wrong ")
+	}
+
+	defer tx.Rollback()
+
+	if _, err := r.UserRepo.CreateUser(tx, user); err != nil {
+		log.Printf("erro when creating user : %v", err)
+		return nil, errors.New("something wrong")
+	}
+
+	if err := tx.Commit(); err != nil {
+		log.Printf("erro when commiting %v", err)
+		return nil, err
+	}
+
+	token, err := user.GenerateToken()
+	if err != nil {
+		log.Printf("erroe when generating token : %v", err)
+		return nil, errors.New("something when wrong")
+	}
+
+	return &model.AuthResponse{
+		AuthToken: token,
+		User:      user,
+	}, nil
+}
 
 func (r *mutationResolver) CreateProduct(ctx context.Context, input model.NewProduct) (*model.Product, error) {
 	if len(input.Name) < 3 {
@@ -22,7 +80,6 @@ func (r *mutationResolver) CreateProduct(ctx context.Context, input model.NewPro
 	}
 
 	product := &model.Product{
-		ID:          input.ID,
 		Name:        input.Name,
 		Description: input.Description,
 		Price:       input.Price,
@@ -104,6 +161,10 @@ func (r *queryResolver) User(ctx context.Context, id string) (*model.User, error
 
 func (r *userResolver) ProductID(ctx context.Context, obj *model.User) ([]*model.Product, error) {
 	return r.ProductRepo.GetUserProduct(obj)
+}
+
+func (r *userResolver) UpdataeAt(ctx context.Context, obj *model.User) (*time.Time, error) {
+	panic(fmt.Errorf("not implemented"))
 }
 
 // Mutation returns generated.MutationResolver implementation.

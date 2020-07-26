@@ -7,9 +7,13 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/go-chi/chi/middleware"
 	"github.com/go-pg/pg/v9"
+	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 	"github.com/sony-nurdianto/go-pedia/graph"
 	"github.com/sony-nurdianto/go-pedia/graph/generated"
+	"github.com/sony-nurdianto/go-pedia/graph/middleware1"
 	"github.com/sony-nurdianto/go-pedia/graph/postgres"
 )
 
@@ -32,9 +36,23 @@ func main() {
 		port = defaultPort
 	}
 
+	userRepo := postgres.UserRepo{DB: DB}
+
+	r := mux.NewRouter()
+
+	r.Use(cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:8080"},
+		AllowCredentials: true,
+		Debug:            true,
+	}).Handler)
+
+	r.Use(middleware.RequestID)
+	r.Use(middleware.Logger)
+	r.Use(middleware1.AuthMiddleware(userRepo))
+
 	c := generated.Config{Resolvers: &graph.Resolver{
 		ProductRepo: postgres.ProductRepo{DB: DB},
-		UserRepo:    postgres.UserRepo{DB: DB},
+		UserRepo:    userRepo,
 	}}
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(c))

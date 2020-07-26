@@ -2,11 +2,28 @@
 #
 # https://gqlgen.com/getting-started/
 
+scalar Time
+
+type AuthToken{
+  accessToken: String!
+  expiredAt: Time!
+
+}
+
+type AuthResponse{
+  authToken: AuthToken!
+  user: User!
+}
+
 type User{
   id: ID!
   user_name: String!
   email: String!
   product_id: [Product!]!
+  first_name: String!
+  last_name: String!
+  createdAt: Time!
+  updataeAt: Time!
 }
 
 type Product{
@@ -34,6 +51,15 @@ input UpdateProduct{
   price: Int
 }
 
+input RegisterUser{
+  user_name: String!
+  email: String!
+  password: String!
+  confirmPassword: String!
+  first_name: String!
+  last_name: String!
+}
+
 type Query{
   products(filter: FilterProduct, limit: Int = 10 , offset: Int = 0):[Product!]!
   user(id:ID!):User!
@@ -42,6 +68,7 @@ type Query{
 
 
 type Mutation{
+  registerUser(input:RegisterUser!): AuthResponse!
   createProduct(input: NewProduct!) : Product!
   updateProduct(id:ID!,input: UpdateProduct!) : Product!
   deleteProduct(id:ID!) : Boolean!

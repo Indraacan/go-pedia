@@ -71,7 +71,7 @@ func (p *ProductRepo) Delete(product *model.Product) error {
 	return err
 }
 
-//GetUserProduct
+//GetUserProduct user have product
 func (p *ProductRepo) GetUserProduct(user *model.User) ([]*model.Product, error) {
 	var products []*model.Product
 	err := p.DB.Model(&products).Where("user = ?", user.ID).Select()
