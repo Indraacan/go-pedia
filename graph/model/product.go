@@ -10,6 +10,7 @@ type Product struct {
 	User string `json:"user"`
 }
 
-func (p *Product) IsOwner(user *user) bool {
+//IsOwner to chexk are you the owner
+func (p *Product) IsOwner(user *User) bool {
 	return p.User == user.ID
 }

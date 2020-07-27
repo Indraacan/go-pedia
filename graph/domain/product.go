@@ -9,7 +9,7 @@ import (
 	"github.com/sony-nurdianto/go-pedia/graph/model"
 )
 
-//Create Product function // in  this case this is controller
+//CreateProduct function // in  this case this is controller
 func (d *Domain) CreateProduct(ctx context.Context, input model.NewProduct) (*model.Product, error) {
 	currentUser, err := middleware1.GetCurrentUserFromCTX(ctx)
 	if err != nil {
@@ -46,7 +46,7 @@ func (d *Domain) UpdateProduct(ctx context.Context, id string, input model.Updat
 		return nil, errors.New("product not exist")
 	}
 
-	if !product.IsOWner(currentUser) {
+	if !product.IsOwner(currentUser) {
 		return nil, errors.New("you are not user")
 	}
 
@@ -101,12 +101,12 @@ func (d *Domain) DeleteProduct(ctx context.Context, id string) (bool, error) {
 		return false, errors.New("product not exist")
 	}
 
-	if !Product.IsOwner(currentUser) {
-		return false, error.New("you're not owner")
+	if !product.IsOwner(currentUser) {
+		return false, errors.New("you're not owner")
 	}
 
 	if !checkOwnerShip(product, currentUser) {
-		return false, error.New("you're not owner")
+		return false, errors.New("you're not owner")
 	}
 
 	err = d.ProductRepo.Delete(product)
